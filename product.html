@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3D Shoe Viewer</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script src="products.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: #0f0f1f;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: white;
+    }
+    model-viewer {
+      width: 90vw;
+      max-width: 600px;
+      height: 600px;
+      background: #1a1a2a;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .back-btn {
+      margin-top: 1rem;
+      background: #4a90e2;
+      color: white;
+      padding: 0.6rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .error {
+      font-size: 1.5rem;
+      color: #ff5555;
+      margin-top: 2rem;
+    }
+    #show-ar-btn {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(90deg, #7ecfff, #4a90e2);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      z-index: 999;
+      cursor: pointer;
+    }
+    #qr-container {
+      display: none;
+      position: fixed;
+      top: 70px;
+      left: 1rem;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      z-index: 999;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    #qr-container p {
+      color: #000;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <button id="show-ar-btn">Show in AR</button>
+  <div id="qr-container">
+    <p>Scan to view in AR:</p>
+    <img id="qr-image" src="" alt="QR Code" width="180">
+  </div>
+
+  <div id="viewer-container"></div>
+  <button class="back-btn" onclick="history.back()">⬅ Back</button>
+
+  <script>
+    const getParam = (name) => new URLSearchParams(window.location.search).get(name);
+    const id = getParam("id");
+    const product = window.products?.find(p => p.id === id);
+    const viewerContainer = document.getElementById("viewer-container");
+
+    if (product) {
+      viewerContainer.innerHTML = `
+        <model-viewer src="models/${product.id}.glb"
+          alt="${product.title}" auto-rotate camera-controls ar
+          shadow-intensity="1" exposure="1"
+          style="background:#18182e; border-radius:12px;">
+        </model-viewer>
+      `;
+    } else {
+      viewerContainer.innerHTML = `<div class="error">Product not found</div>`;
+    }
+
+    const showARBtn = document.getElementById("show-ar-btn");
+    const qrContainer = document.getElementById("qr-container");
+    const qrImage = document.getElementById("qr-image");
+
+    showARBtn.addEventListener("click", () => {
+      // Replace below with your actual GitHub username and repo name
+      const baseUrl = "https://your-username.github.io/your-repo-name";
+      const arUrl = `${baseUrl}/3dview.html?id=${id}#ar`;
+      const qrAPI = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(arUrl)}&size=180x180`;
+      qrImage.src = qrAPI;
+      qrContainer.style.display = "block";
+    });
+  </script>
+</body>
+</html>
