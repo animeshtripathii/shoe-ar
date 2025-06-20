@@ -87,12 +87,9 @@
     <button id="show-ar-btn">Show in AR</button>
     <model-viewer id="main-viewer"
       src=""
-      ios-src=""
       alt="3D Shoe"
       auto-rotate
       camera-controls
-      ar
-      ar-modes="webxr scene-viewer quick-look"
       shadow-intensity="1"
       exposure="1">
     </model-viewer>
@@ -112,9 +109,7 @@
 
     if (product) {
       const modelUrl = `${baseUrl}models/${product.id}.glb`;
-      const usdzUrl = `${baseUrl}models/${product.id}.usdz`;
       viewer.src = modelUrl;
-      viewer.setAttribute('ios-src', usdzUrl);
       viewer.alt = product.title || '3D Shoe';
     } else {
       viewer.style.display = "none";
@@ -130,13 +125,12 @@
 
       const modelUrl = `${baseUrl}models/${product.id}.glb`;
 
-      // Direct Scene Viewer URL (Android only)
-      const sceneViewerUrl = `https://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelUrl)}&mode=ar_only&resizable=false`;
+      // Android Scene Viewer intent
+      const sceneViewerUrl = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelUrl)}&mode=ar_only#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(modelUrl)};end;`;
 
-      // Open AR on Android device
       window.location.href = sceneViewerUrl;
 
-      // Generate QR code for mobile
+      // Show QR Code
       const qrAPI = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(sceneViewerUrl)}&size=180x180`;
       qrImage.src = qrAPI;
       qrContainer.style.display = "block";
