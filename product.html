@@ -103,16 +103,20 @@
   </div>
   <button class="back-btn" onclick="history.back()">⬅ Back</button>
   <script>
-    // Get product ID from URL (e.g., ?id=shoe1)
+    // Use your actual GitHub Pages base URL:
+    const baseUrl = "https://animeshtripathii.github.io/shoe-ar/";
+
+    // Get product ID from URL (e.g., ?id=1)
     const getParam = (name) => new URLSearchParams(window.location.search).get(name);
     const id = getParam("id");
     const product = window.products?.find(p => p.id === id);
     const viewer = document.getElementById("main-viewer");
 
     if (product) {
-      // Set model sources
-      viewer.src = `models/${product.id}.glb`;
-      viewer.setAttribute('ios-src', `models/${product.id}.usdz`);
+      const modelUrl = `${baseUrl}models/${product.id}.glb`;
+      const usdzUrl = `${baseUrl}models/${product.id}.usdz`;
+      viewer.src = modelUrl;
+      viewer.setAttribute('ios-src', usdzUrl);
       viewer.alt = product.title || '3D Shoe';
     } else {
       viewer.style.display = "none";
@@ -129,10 +133,8 @@
     }
 
     function getARUrl() {
-      // Use absolute URLs for AR intents
-      const origin = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
-      const modelUrl = `${origin}models/${product.id}.glb`;
-      const usdzUrl = `${origin}models/${product.id}.usdz`;
+      const modelUrl = `${baseUrl}models/${product.id}.glb`;
+      const usdzUrl = `${baseUrl}models/${product.id}.usdz`;
       if (isIOS()) {
         return usdzUrl;
       } else {
@@ -142,9 +144,7 @@
     }
 
     showARBtn.addEventListener("click", () => {
-      // Open AR viewer in new tab/window for mobile
       window.open(getARUrl(), "_blank");
-      // Show QR code for desktop users
       const qrAPI = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(getARUrl())}&size=180x180`;
       qrImage.src = qrAPI;
       qrContainer.style.display = "block";
