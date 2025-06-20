@@ -103,10 +103,7 @@
   </div>
   <button class="back-btn" onclick="history.back()">⬅ Back</button>
   <script>
-    // Use your actual GitHub Pages base URL:
     const baseUrl = "https://animeshtripathii.github.io/shoe-ar/";
-
-    // Get product ID from URL (e.g., ?id=1)
     const getParam = (name) => new URLSearchParams(window.location.search).get(name);
     const id = getParam("id");
     const product = window.products?.find(p => p.id === id);
@@ -123,29 +120,21 @@
       document.querySelector('.viewer-wrapper').insertAdjacentHTML('beforeend', `<div class="error">Product not found</div>`);
     }
 
-    // AR Button and QR code logic
     const showARBtn = document.getElementById("show-ar-btn");
     const qrContainer = document.getElementById("qr-container");
     const qrImage = document.getElementById("qr-image");
 
-    function isIOS() {
-      return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    }
-
-    function getARUrl() {
-      const modelUrl = `${baseUrl}models/${product.id}.glb`;
-      const usdzUrl = `${baseUrl}models/${product.id}.usdz`;
-      if (isIOS()) {
-        return usdzUrl;
-      } else {
-        const fallbackUrl = window.location.href;
-        return `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelUrl)}&mode=ar_only&title=${encodeURIComponent(product.title)}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end;`;
-      }
-    }
-
     showARBtn.addEventListener("click", () => {
-      window.open(getARUrl(), "_blank");
-      const qrAPI = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(getARUrl())}&size=180x180`;
+      if (!product) return;
+
+      const modelUrl = `${baseUrl}models/${product.id}.glb`;
+      const arPageUrl = `${baseUrl}ar.html?model=${encodeURIComponent(modelUrl)}`;
+
+      // Open ar.html in a new tab
+      window.open(arPageUrl, "_blank");
+
+      // Generate QR code for ar.html
+      const qrAPI = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(arPageUrl)}&size=180x180`;
       qrImage.src = qrAPI;
       qrContainer.style.display = "block";
     });
