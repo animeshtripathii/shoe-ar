@@ -1,42 +1,61 @@
+<!-- ar.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AR Model Viewer</title>
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <title>Launching AR Experience...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body { margin:0; background:#0f0f1f; display:flex; align-items:center;
-      justify-content:center; min-height:100vh; color:#fff; font-family:Segoe UI,sans-serif; }
-    model-viewer { width:90vw; max-width:600px; height:600px; background:#1a1a2a;
-      border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.3); }
-    .message { text-align:center; font-size:1.2rem; padding:1rem; }
-    .back-btn { margin-top:1rem; background:#4a90e2; color:white;
-      padding:0.6rem 1.5rem; border:none; border-radius:8px;
-      font-size:1rem; cursor:pointer; display:block; }
+    body {
+      background: #0f0f1f;
+      color: white;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <div id="content" style="text-align:center;">
-    <div id="message" class="message">Loading AR viewer...</div>
+  <div>
+    <p>Launching AR experience...</p>
+    <p>If nothing happens, <a id="ar-link" href="#">tap here</a>.</p>
   </div>
+
   <script>
     const getParam = name => new URLSearchParams(window.location.search).get(name);
-    const model = getParam("model");
-    const ua = navigator.userAgent;
+    const glbUrl = getParam("model");
 
-    if (!model) {
-      document.getElementById("message").textContent = "No model specified.";
-    } else if (/iP(hone|ad|od)|Macintosh/.test(ua)) {
-      window.location.href = model.replace(/\.glb$/, '.usdz');
-    } else if (/Android/.test(ua)) {
-      const intentUrl = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(model)}&mode=ar_only&title=AR%20View#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(window.location.href)};end;`;
-      window.location.href = intentUrl;
+    if (!glbUrl) {
+      document.body.innerHTML = "<h2>❌ Model URL is missing.</h2>";
     } else {
-      document.getElementById("content").innerHTML = `
-        <div class="message">Scan this page QR code on mobile to view the model in AR.</div>
-        <img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(location.href)}&size=180x180" alt="QR Code">
-        <button class="back-btn" onclick="history.back()">⬅ Back</button>`;
+      const usdzUrl = glbUrl.replace(".glb", ".usdz");
+
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const isAndroid = /Android/i.test(navigator.userAgent);
+
+      let arLink = "";
+
+      if (isIOS) {
+        // iOS opens Quick Look with USDZ
+        arLink = usdzUrl;
+      } else if (isAndroid) {
+        // Android uses Scene Viewer
+        arLink = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(glbUrl)}&mode=ar_preferred#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(glbUrl)};end;`;
+      } else {
+        // Desktop fallback
+        arLink = glbUrl;
+      }
+
+      // Auto-redirect after short delay
+      setTimeout(() => {
+        window.location.href = arLink;
+      }, 1000);
+
+      // Update manual fallback link
+      document.getElementById("ar-link").href = arLink;
     }
   </script>
 </body>
