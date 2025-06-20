@@ -135,11 +135,6 @@
       const qrAPI = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(arHtmlUrl)}&size=180x180`;
       qrImage.src = qrAPI;
       qrContainer.style.display = "block";
-
-      // Auto-redirect to ar.html after 3 seconds
-      setTimeout(() => {
-        window.location.href = arHtmlUrl;
-      }, 3000);
     });
   </script>
 </body>
