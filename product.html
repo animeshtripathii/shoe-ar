@@ -129,16 +129,16 @@
       if (!product) return;
 
       const modelUrl = `${baseUrl}models/${product.id}.glb`;
-      const sceneViewerUrl = `https://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelUrl)}&mode=ar_only&resizable=false`;
+      const arHtmlUrl = `${baseUrl}ar.html?model=${encodeURIComponent(modelUrl)}`;
 
-      // Show QR code first
-      const qrAPI = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(sceneViewerUrl)}&size=180x180`;
+      // Show QR code
+      const qrAPI = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(arHtmlUrl)}&size=180x180`;
       qrImage.src = qrAPI;
       qrContainer.style.display = "block";
 
-      // After 3 seconds, open Scene Viewer on Android
+      // Auto-redirect to ar.html after 3 seconds
       setTimeout(() => {
-        window.location.href = sceneViewerUrl;
+        window.location.href = arHtmlUrl;
       }, 3000);
     });
   </script>
