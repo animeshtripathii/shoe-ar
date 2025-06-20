@@ -18,13 +18,52 @@
       min-height: 100vh;
       color: white;
     }
-    model-viewer {
+    .viewer-wrapper {
+      position: relative;
       width: 90vw;
       max-width: 600px;
+      margin: 2rem 0 1rem 0;
+    }
+    model-viewer {
+      width: 100%;
       height: 600px;
       background: #1a1a2a;
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      display: block;
+    }
+    #show-ar-btn {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(90deg, #7ecfff, #4a90e2);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      z-index: 10;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #show-ar-btn:hover {
+      background: linear-gradient(90deg, #4a90e2, #7ecfff);
+    }
+    #qr-container {
+      display: none;
+      position: fixed;
+      top: 70px;
+      left: 1rem;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      z-index: 999;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    #qr-container p {
+      color: #000;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
     }
     .back-btn {
       margin-top: 1rem;
@@ -44,25 +83,72 @@
   </style>
 </head>
 <body>
-  <div id="viewer-container"></div>
+  <div class="viewer-wrapper">
+    <button id="show-ar-btn">Show in AR</button>
+    <model-viewer id="main-viewer"
+      src=""
+      ios-src=""
+      alt="3D Shoe"
+      auto-rotate
+      camera-controls
+      ar
+      ar-modes="webxr scene-viewer quick-look"
+      shadow-intensity="1"
+      exposure="1">
+    </model-viewer>
+  </div>
+  <div id="qr-container">
+    <p>Scan to view in AR:</p>
+    <img id="qr-image" src="" alt="QR Code" width="180">
+  </div>
   <button class="back-btn" onclick="history.back()">⬅ Back</button>
   <script>
+    // Get product ID from URL (e.g., ?id=shoe1)
     const getParam = (name) => new URLSearchParams(window.location.search).get(name);
     const id = getParam("id");
     const product = window.products?.find(p => p.id === id);
-    const viewerContainer = document.getElementById("viewer-container");
+    const viewer = document.getElementById("main-viewer");
 
     if (product) {
-      viewerContainer.innerHTML = `
-        <model-viewer src="models/${product.id}.glb"
-          alt="${product.title}" auto-rotate camera-controls ar
-          shadow-intensity="1" exposure="1"
-          style="background:#18182e; border-radius:12px;">
-        </model-viewer>
-      `;
+      // Set model sources
+      viewer.src = `models/${product.id}.glb`;
+      viewer.setAttribute('ios-src', `models/${product.id}.usdz`);
+      viewer.alt = product.title || '3D Shoe';
     } else {
-      viewerContainer.innerHTML = `<div class="error">Product not found</div>`;
+      viewer.style.display = "none";
+      document.querySelector('.viewer-wrapper').insertAdjacentHTML('beforeend', `<div class="error">Product not found</div>`);
     }
+
+    // AR Button and QR code logic
+    const showARBtn = document.getElementById("show-ar-btn");
+    const qrContainer = document.getElementById("qr-container");
+    const qrImage = document.getElementById("qr-image");
+
+    function isIOS() {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    }
+
+    function getARUrl() {
+      // Use absolute URLs for AR intents
+      const origin = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
+      const modelUrl = `${origin}models/${product.id}.glb`;
+      const usdzUrl = `${origin}models/${product.id}.usdz`;
+      if (isIOS()) {
+        return usdzUrl;
+      } else {
+        const fallbackUrl = window.location.href;
+        return `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelUrl)}&mode=ar_only&title=${encodeURIComponent(product.title)}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end;`;
+      }
+    }
+
+    showARBtn.addEventListener("click", () => {
+      // Open AR viewer in new tab/window for mobile
+      window.open(getARUrl(), "_blank");
+      // Show QR code for desktop users
+      const qrAPI = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(getARUrl())}&size=180x180`;
+      qrImage.src = qrAPI;
+      qrContainer.style.display = "block";
+    });
   </script>
 </body>
 </html>
