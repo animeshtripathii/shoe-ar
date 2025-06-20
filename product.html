@@ -100,18 +100,17 @@
       viewerContainer.innerHTML = `<div class="error">Product not found</div>`;
     }
 
-    const showARBtn = document.getElementById("show-ar-btn");
-    const qrContainer = document.getElementById("qr-container");
-    const qrImage = document.getElementById("qr-image");
+  const showARBtn = document.getElementById("show-ar-btn");
+const qrContainer = document.getElementById("qr-container");
+const qrImage = document.getElementById("qr-image");
 
-    showARBtn.addEventListener("click", () => {
-      // Replace below with your actual GitHub username and repo name
-       const baseUrl = "https://animeshtripathii.github.io/shoe-ar";
-      const arUrl = `${baseUrl}/3dview.html?id=${id}#ar`;
-      const qrAPI = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(arUrl)}&size=180x180`;
-      qrImage.src = qrAPI;
-      qrContainer.style.display = "block";
-    });
+showARBtn.addEventListener("click", () => {
+  const arUrl = `https://animeshtripathii.github.io/shoe-ar/3dview.html?id=${id}#ar`;
+  const qrAPI = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(arUrl)}&size=180x180`;
+  qrImage.src = qrAPI;
+  qrContainer.style.display = "block";
+});
+
   </script>
 </body>
 </html>
