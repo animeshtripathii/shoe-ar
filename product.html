@@ -18,10 +18,10 @@
       color: white;
     }
 
-    .product-card {
+    .viewer-wrapper {
       width: 90vw;
       max-width: 600px;
-      background: #ffffff;
+      background: #fff;
       color: #000;
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.3);
@@ -30,15 +30,13 @@
 
     .product-image {
       width: 100%;
-      height: auto;
       background: #1a1a2a;
     }
 
     .product-image img {
       width: 100%;
-      height: auto;
-      border-bottom: 1px solid #ddd;
       display: block;
+      border-bottom: 1px solid #ccc;
     }
 
     .product-info {
@@ -65,8 +63,8 @@
 
     .btn-group {
       display: flex;
-      flex-wrap: wrap;
       gap: 1rem;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -90,17 +88,11 @@
       color: #ff5555;
       margin-top: 2rem;
     }
-
-    @media (max-width: 768px) {
-      .product-card {
-        width: 100%;
-      }
-    }
   </style>
 </head>
 <body>
 
-<div class="product-card">
+<div class="viewer-wrapper">
   <div class="product-image">
     <img id="product-image" src="" alt="Shoe Image" />
   </div>
@@ -149,8 +141,6 @@
     const intentURL = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_only&title=${encodeURIComponent(product.title)}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
 
     document.getElementById("ar-button").href = intentURL;
-
-    // QR code
     document.getElementById("qr-button").href = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(intentURL)}`;
     document.getElementById("qr-button").download = `${productId}-ar-qr.png`;
   } else {
