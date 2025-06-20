@@ -4,58 +4,63 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Product Details</title>
-  <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      font-family: 'Arial', sans-serif;
       margin: 0;
-      padding: 0;
-      background: #f9f9f9;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem;
-      display: flex;
-      flex-direction: row;
-      gap: 2rem;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 0 12px rgba(0,0,0,0.05);
-    }
-
-    .product-img {
-      flex: 1;
-      max-width: 400px;
-    }
-
-    .product-img img {
-      width: 100%;
-      border-radius: 10px;
-    }
-
-    .product-details {
-      flex: 2;
+      background: #0f0f1f;
+      font-family: 'Segoe UI', sans-serif;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      color: white;
+    }
+
+    .product-card {
+      width: 90vw;
+      max-width: 600px;
+      background: #ffffff;
+      color: #000;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .product-image {
+      width: 100%;
+      height: auto;
+      background: #1a1a2a;
+    }
+
+    .product-image img {
+      width: 100%;
+      height: auto;
+      border-bottom: 1px solid #ddd;
+      display: block;
+    }
+
+    .product-info {
+      padding: 1.5rem;
     }
 
     h1 {
-      margin-top: 0;
-      font-size: 2rem;
+      font-size: 1.8rem;
+      margin: 0 0 0.5rem;
       color: #222;
     }
 
     .price {
+      font-size: 1.4rem;
       color: #27ae60;
-      font-size: 1.5rem;
-      margin: 1rem 0;
+      margin: 0.5rem 0;
     }
 
     .description {
-      margin-bottom: 1rem;
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+      color: #333;
     }
 
     .btn-group {
@@ -68,37 +73,41 @@
       padding: 10px 20px;
       border: none;
       border-radius: 8px;
-      background-color: #007bff;
+      background: linear-gradient(90deg, #7ecfff, #4a90e2);
       color: white;
-      cursor: pointer;
       font-weight: bold;
       text-decoration: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
     }
 
     .btn:hover {
-      background-color: #0056b3;
+      background: linear-gradient(90deg, #4a90e2, #7ecfff);
+    }
+
+    .error {
+      font-size: 1.5rem;
+      color: #ff5555;
+      margin-top: 2rem;
     }
 
     @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-        padding: 1rem;
+      .product-card {
+        width: 100%;
       }
     }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="product-img">
+<div class="product-card">
+  <div class="product-image">
     <img id="product-image" src="" alt="Shoe Image" />
   </div>
-  <div class="product-details">
-    <div>
-      <h1 id="product-title">Product Title</h1>
-      <p class="price" id="product-price">$0.00</p>
-      <p class="description" id="product-description">Product Description</p>
-    </div>
+  <div class="product-info">
+    <h1 id="product-title">Product Title</h1>
+    <p class="price" id="product-price">$0.00</p>
+    <p class="description" id="product-description">Product Description</p>
     <div class="btn-group">
       <a id="ar-button" class="btn" target="_blank">View in AR</a>
       <a id="qr-button" class="btn" href="#">Download QR</a>
@@ -110,7 +119,6 @@
   const urlParams = new URLSearchParams(window.location.search);
   const productId = urlParams.get("id") || "1";
 
-  // Example products data (you can replace this with JSON fetch)
   const products = {
     "1": {
       title: "Nike Air Max Alpha",
@@ -142,11 +150,11 @@
 
     document.getElementById("ar-button").href = intentURL;
 
-    // QR code download (optional)
+    // QR code
     document.getElementById("qr-button").href = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(intentURL)}`;
     document.getElementById("qr-button").download = `${productId}-ar-qr.png`;
   } else {
-    document.querySelector(".container").innerHTML = "<p>Product not found</p>";
+    document.body.innerHTML = '<div class="error">Product not found</div>';
   }
 </script>
 
