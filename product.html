@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Product Details</title>
+  <title>3D Shoe Viewer</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script src="products.js"></script>
   <style>
     body {
       margin: 0;
@@ -12,151 +14,141 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
       min-height: 100vh;
-      padding: 2rem 1rem;
       color: white;
     }
-
-    .product-card {
+    .viewer-wrapper {
+      position: relative;
       width: 90vw;
       max-width: 600px;
-      background: #ffffff;
-      color: #000;
+      margin: 2rem 0 1rem 0;
+    }
+    model-viewer {
+      width: 100%;
+      height: 600px;
+      background: #1a1a2a;
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-      overflow: hidden;
-    }
-
-    .product-image {
-      width: 100%;
-      height: auto;
-      background: #1a1a2a;
-    }
-
-    .product-image img {
-      width: 100%;
-      height: auto;
-      border-bottom: 1px solid #ddd;
       display: block;
     }
-
-    .product-info {
-      padding: 1.5rem;
-    }
-
-    h1 {
-      font-size: 1.8rem;
-      margin: 0 0 0.5rem;
-      color: #222;
-    }
-
-    .price {
-      font-size: 1.4rem;
-      color: #27ae60;
-      margin: 0.5rem 0;
-    }
-
-    .description {
-      font-size: 1rem;
-      margin-bottom: 1.5rem;
-      color: #333;
-    }
-
-    .btn-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .btn {
-      padding: 10px 20px;
+    #show-ar-btn {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(90deg, #7ecfff, #4a90e2);
+      color: #fff;
       border: none;
       border-radius: 8px;
-      background: linear-gradient(90deg, #7ecfff, #4a90e2);
-      color: white;
       font-weight: bold;
-      text-decoration: none;
+      z-index: 10;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: background 0.2s;
     }
-
-    .btn:hover {
+    #show-ar-btn:hover {
       background: linear-gradient(90deg, #4a90e2, #7ecfff);
     }
-
+    #qr-container {
+      display: none;
+      position: fixed;
+      top: 70px;
+      left: 1rem;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      z-index: 999;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    #qr-container p {
+      color: #000;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .back-btn {
+      margin-top: 1rem;
+      background: #4a90e2;
+      color: white;
+      padding: 0.6rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
     .error {
       font-size: 1.5rem;
       color: #ff5555;
       margin-top: 2rem;
     }
-
-    @media (max-width: 768px) {
-      .product-card {
-        width: 100%;
-      }
-    }
   </style>
 </head>
 <body>
-
-<div class="product-card">
-  <div class="product-image">
-    <img id="product-image" src="" alt="Shoe Image" />
+  <div class="viewer-wrapper">
+    <button id="show-ar-btn">Show in AR</button>
+    <model-viewer id="main-viewer"
+      src=""
+      ios-src=""
+      alt="3D Shoe"
+      auto-rotate
+      camera-controls
+      ar
+      ar-modes="webxr scene-viewer quick-look"
+      shadow-intensity="1"
+      exposure="1">
+    </model-viewer>
   </div>
-  <div class="product-info">
-    <h1 id="product-title">Product Title</h1>
-    <p class="price" id="product-price">$0.00</p>
-    <p class="description" id="product-description">Product Description</p>
-    <div class="btn-group">
-      <a id="ar-button" class="btn" target="_blank">View in AR</a>
-      <a id="qr-button" class="btn" href="#">Download QR</a>
-    </div>
+  <div id="qr-container">
+    <p>Scan to view in AR:</p>
+    <img id="qr-image" src="" alt="QR Code" width="180">
   </div>
-</div>
+  <button class="back-btn" onclick="history.back()">⬅ Back</button>
+  <script>
+    // Use your actual GitHub Pages base URL:
+    const baseUrl = "https://animeshtripathii.github.io/shoe-ar/";
 
-<script>
-  const urlParams = new URLSearchParams(window.location.search);
-  const productId = urlParams.get("id") || "1";
+    // Get product ID from URL (e.g., ?id=1)
+    const getParam = (name) => new URLSearchParams(window.location.search).get(name);
+    const id = getParam("id");
+    const product = window.products?.find(p => p.id === id);
+    const viewer = document.getElementById("main-viewer");
 
-  const products = {
-    "1": {
-      title: "Nike Air Max Alpha",
-      price: "$149.99",
-      description: "Stylish and comfortable running shoes.",
-      image: "models/1.png",
-      model: "models/1.glb"
-    },
-    "2": {
-      title: "Adidas Ultraboost",
-      price: "$179.99",
-      description: "High-performance sneakers for all-day wear.",
-      image: "models/2.png",
-      model: "models/2.glb"
+    if (product) {
+      const modelUrl = `${baseUrl}models/${product.id}.glb`;
+      const usdzUrl = `${baseUrl}models/${product.id}.usdz`;
+      viewer.src = modelUrl;
+      viewer.setAttribute('ios-src', usdzUrl);
+      viewer.alt = product.title || '3D Shoe';
+    } else {
+      viewer.style.display = "none";
+      document.querySelector('.viewer-wrapper').insertAdjacentHTML('beforeend', `<div class="error">Product not found</div>`);
     }
-  };
 
-  const product = products[productId];
+    // AR Button and QR code logic
+    const showARBtn = document.getElementById("show-ar-btn");
+    const qrContainer = document.getElementById("qr-container");
+    const qrImage = document.getElementById("qr-image");
 
-  if (product) {
-    document.getElementById("product-title").textContent = product.title;
-    document.getElementById("product-price").textContent = product.price;
-    document.getElementById("product-description").textContent = product.description;
-    document.getElementById("product-image").src = product.image;
+    function isIOS() {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    }
 
-    const modelURL = `https://animeshtripathii.github.io/shoe-ar/${product.model}`;
-    const fallbackURL = `https://animeshtripathii.github.io/shoe-ar/product.html?id=${productId}`;
-    const intentURL = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_only&title=${encodeURIComponent(product.title)}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
+    function getARUrl() {
+      const modelUrl = `${baseUrl}models/${product.id}.glb`;
+      const usdzUrl = `${baseUrl}models/${product.id}.usdz`;
+      if (isIOS()) {
+        return usdzUrl;
+      } else {
+        const fallbackUrl = window.location.href;
+        return `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelUrl)}&mode=ar_only&title=${encodeURIComponent(product.title)}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end;`;
+      }
+    }
 
-    document.getElementById("ar-button").href = intentURL;
-
-    // QR code
-    document.getElementById("qr-button").href = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(intentURL)}`;
-    document.getElementById("qr-button").download = `${productId}-ar-qr.png`;
-  } else {
-    document.body.innerHTML = '<div class="error">Product not found</div>';
-  }
-</script>
-
+    showARBtn.addEventListener("click", () => {
+      window.open(getARUrl(), "_blank");
+      const qrAPI = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(getARUrl())}&size=180x180`;
+      qrImage.src = qrAPI;
+      qrContainer.style.display = "block";
+    });
+  </script>
 </body>
 </html>
